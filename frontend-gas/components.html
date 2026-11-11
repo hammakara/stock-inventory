@@ -1,0 +1,23 @@
+<!-- Reusable UI Components & Modals for Google Apps Script HTML Service -->
+
+<!-- Global Toast Notification Container -->
+<div id="global-toast" class="hidden fixed bottom-5 right-5 px-4 py-2.5 rounded-lg text-xs font-medium shadow-lg transition-all z-50"></div>
+
+<!-- Generic Confirmation Modal -->
+<div id="confirm-modal" class="hidden fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50">
+  <div class="bg-white rounded-xl shadow-xl max-w-sm w-full p-5 space-y-4">
+    <div class="flex items-center gap-3">
+      <div class="w-9 h-9 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center shrink-0">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <div>
+        <h4 id="confirm-title" class="font-semibold text-slate-900 text-sm">Confirm Action</h4>
+        <p id="confirm-message" class="text-xs text-slate-500 mt-0.5">Are you sure you want to proceed?</p>
+      </div>
+    </div>
+    <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+      <button onclick="closeConfirmModal(false)" class="px-3 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Cancel</button>
+      <button id="confirm-action-btn" onclick="executeConfirmedAction()" class="px-3.5 py-1.5 text-xs font-medium text-white bg-rose-600 hover:bg-rose-700 rounded-lg">Confirm</button>
+    </div>
+  </div>
+</div>

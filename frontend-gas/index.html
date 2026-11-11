@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title><?= CONFIG.APP_TITLE ?></title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <?!= include('css'); ?>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased font-sans flex h-screen overflow-hidden">
+  
+  <!-- Sidebar Navigation -->
+  <aside id="app-sidebar" class="w-64 bg-slate-900 text-slate-300 flex flex-col justify-between shrink-0 transition-all duration-200">
+    <div>
+      <!-- Brand Wordmark -->
+      <div class="h-16 flex items-center px-6 border-b border-slate-800">
+        <div class="flex items-center gap-3">
+          <div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-bold text-sm">
+            <i class="fa-solid fa-boxes-stacked"></i>
+          </div>
+          <div>
+            <div class="font-bold text-white tracking-tight text-sm">StockFlow</div>
+            <div class="text-[11px] text-slate-400">Enterprise Inventory</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation Links -->
+      <nav class="p-3 space-y-1 text-sm font-medium">
+        <a href="#dashboard" onclick="navigate('dashboard')" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-white bg-slate-800">
+          <i class="fa-solid fa-chart-pie w-4 text-center"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="#products" onclick="navigate('products')" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-colors">
+          <i class="fa-solid fa-box-archive w-4 text-center"></i>
+          <span>Products</span>
+        </a>
+        <a href="#categories" onclick="navigate('categories')" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-colors">
+          <i class="fa-solid fa-tags w-4 text-center"></i>
+          <span>Categories</span>
+        </a>
+        <a href="#suppliers" onclick="navigate('suppliers')" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-colors">
+          <i class="fa-solid fa-truck-ramp-box w-4 text-center"></i>
+          <span>Suppliers</span>
+        </a>
+        
+        <div class="pt-3 pb-1 px-3 text-[11px] font-semibold tracking-wider text-slate-500 uppercase">Operations</div>
+        
+        <a href="#stock-in" onclick="navigate('stock-in')" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-emerald-400 hover:bg-slate-800/60 transition-colors">
+          <i class="fa-solid fa-arrow-down-to-bracket w-4 text-center"></i>
+          <span>Stock In</span>
+        </a>
+        <a href="#stock-out" onclick="navigate('stock-out')" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg text-amber-400 hover:bg-slate-800/60 transition-colors">
+          <i class="fa-solid fa-arrow-up-from-bracket w-4 text-center"></i>
+          <span>Stock Out</span>
+        </a>
+        <a href="#reports" onclick="navigate('reports')" class="nav-item flex items-center gap-3 px-3 py-2 rounded-lg hover:text-white hover:bg-slate-800/60 transition-colors">
+          <i class="fa-solid fa-file-lines w-4 text-center"></i>
+          <span>Reports</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Active User Card -->
+    <div class="p-4 border-t border-slate-800 text-xs text-slate-400 flex items-center justify-between">
+      <div>
+        <div class="font-medium text-slate-200">System Admin</div>
+        <div class="text-[10px] text-slate-500">Google Sheets Connected</div>
+      </div>
+      <div class="w-2 h-2 rounded-full bg-emerald-500"></div>
+    </div>
+  </aside>
+
+  <!-- Main Viewport -->
+  <div class="flex-1 flex flex-col overflow-hidden">
+    <!-- Top Bar -->
+    <header class="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between shrink-0">
+      <div id="breadcrumb" class="text-sm font-medium text-slate-600">
+        StockFlow / <span class="text-slate-900 font-semibold" id="view-title">Dashboard</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <button onclick="refreshData()" class="px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors flex items-center gap-1.5">
+          <i class="fa-solid fa-arrows-rotate"></i> Sync Sheets
+        </button>
+      </div>
+    </header>
+
+    <!-- Dynamic View Containers -->
+    <main id="main-content" class="flex-1 overflow-y-auto p-6 bg-slate-50">
+      <div id="view-dashboard"><?!= include('dashboard'); ?></div>
+      <div id="view-products" class="hidden"><?!= include('products'); ?></div>
+      <div id="view-categories" class="hidden"><?!= include('categories'); ?></div>
+      <div id="view-suppliers" class="hidden"><?!= include('suppliers'); ?></div>
+      <div id="view-stock-in" class="hidden"><?!= include('stock-in'); ?></div>
+      <div id="view-stock-out" class="hidden"><?!= include('stock-out'); ?></div>
+      <div id="view-reports" class="hidden"><?!= include('reports'); ?></div>
+    </main>
+  </div>
+
+  <!-- Reusable Components and Modals -->
+  <?!= include('components'); ?>
+
+  <!-- Core JavaScript State & google.script.run Client Handlers -->
+  <?!= include('javascript'); ?>
+</body>
+</html>

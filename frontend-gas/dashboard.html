@@ -1,0 +1,70 @@
+<div class="space-y-6">
+  <!-- Metric Stat Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="bg-white p-5 rounded-xl border border-slate-200">
+      <div class="text-xs font-medium text-slate-500">Total Catalog Items</div>
+      <div id="stat-total-products" class="text-2xl font-bold text-slate-900 mt-1 tabular-nums">--</div>
+      <div class="text-[11px] text-slate-400 mt-1">Active SKUs monitored</div>
+    </div>
+    <div class="bg-white p-5 rounded-xl border border-slate-200">
+      <div class="text-xs font-medium text-slate-500">Total Stock Valuation</div>
+      <div id="stat-total-value" class="text-2xl font-bold text-blue-600 mt-1 tabular-nums">--</div>
+      <div class="text-[11px] text-slate-400 mt-1">Asset cost basis</div>
+    </div>
+    <div class="bg-white p-5 rounded-xl border border-slate-200">
+      <div class="text-xs font-medium text-slate-500">Low Stock Warnings</div>
+      <div id="stat-low-stock" class="text-2xl font-bold text-amber-500 mt-1 tabular-nums">--</div>
+      <div class="text-[11px] text-slate-400 mt-1">Items at or below minimum</div>
+    </div>
+    <div class="bg-white p-5 rounded-xl border border-slate-200">
+      <div class="text-xs font-medium text-slate-500">Out of Stock</div>
+      <div id="stat-out-of-stock" class="text-2xl font-bold text-rose-500 mt-1 tabular-nums">--</div>
+      <div class="text-[11px] text-slate-400 mt-1">Immediate reorder required</div>
+    </div>
+  </div>
+
+  <!-- Analytics and Quick Actions -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 bg-white p-5 rounded-xl border border-slate-200">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-semibold text-slate-900 text-sm">Recent Stock Movements</h3>
+        <button onclick="navigate('stock-in')" class="text-xs text-blue-600 hover:underline">New Stock In +</button>
+      </div>
+      <div id="dashboard-recent-transactions" class="divide-y divide-slate-100 text-xs">
+        <div class="py-4 text-center text-slate-400">Loading Google Sheets transactions...</div>
+      </div>
+    </div>
+
+    <div class="bg-white p-5 rounded-xl border border-slate-200">
+      <h3 class="font-semibold text-slate-900 text-sm mb-4">Quick Operations</h3>
+      <div class="space-y-2.5">
+        <button onclick="navigate('stock-in')" class="w-full py-2.5 px-3 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 rounded-lg text-xs font-medium flex items-center justify-between transition-colors">
+          <span>Record Inbound Shipment</span>
+          <i class="fa-solid fa-arrow-down"></i>
+        </button>
+        <button onclick="navigate('stock-out')" class="w-full py-2.5 px-3 bg-amber-50 text-amber-700 hover:bg-amber-100 rounded-lg text-xs font-medium flex items-center justify-between transition-colors">
+          <span>Dispatch Outward Order</span>
+          <i class="fa-solid fa-arrow-up"></i>
+        </button>
+        <button onclick="navigate('reports')" class="w-full py-2.5 px-3 bg-blue-50 text-blue-700 hover:bg-blue-100 rounded-lg text-xs font-medium flex items-center justify-between transition-colors">
+          <span>Generate Valuation Report</span>
+          <i class="fa-solid fa-file-invoice"></i>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  function loadDashboard() {
+    if (typeof google === 'undefined' || !google.script) return;
+    google.script.run
+      .withSuccessHandler(function(metrics) {
+        document.getElementById('stat-total-products').innerText = metrics.totalProducts || 0;
+        document.getElementById('stat-total-value').innerText = '$' + (metrics.totalCostValue || 0).toLocaleString();
+        document.getElementById('stat-low-stock').innerText = metrics.lowStockCount || 0;
+        document.getElementById('stat-out-of-stock').innerText = metrics.outOfStockCount || 0;
+      })
+      .apiGetDashboardMetrics();
+  }
+</script>

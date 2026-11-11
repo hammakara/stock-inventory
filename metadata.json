@@ -1,0 +1,6 @@
+{
+  "name": "StockFlow - Enterprise Inventory Management System",
+  "description": "Full-stack inventory management system integrated with Google Sheets and Google Apps Script, featuring real-time stock tracking, movements, reports, and role-based access control.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,79 @@
+<div class="bg-white rounded-xl border border-slate-200 overflow-hidden">
+  <!-- Table Header Bar -->
+  <div class="p-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+    <div>
+      <h3 class="font-semibold text-slate-900 text-sm">Product Inventory Catalog</h3>
+      <p class="text-xs text-slate-500 mt-0.5">Manage SKUs, unit costs, pricing, and safety stock levels</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <input type="text" id="product-search-input" placeholder="Search SKU or name..." onkeyup="filterProductsTable()" class="px-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:border-blue-500">
+      <button onclick="openProductModal()" class="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center gap-1.5 transition-colors">
+        <i class="fa-solid fa-plus"></i> Add Product
+      </button>
+    </div>
+  </div>
+
+  <!-- Products Data Table -->
+  <div class="overflow-x-auto">
+    <table class="w-full text-left text-xs">
+      <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[10px] font-semibold border-b border-slate-200">
+        <tr>
+          <th class="py-3 px-4">SKU / ID</th>
+          <th class="py-3 px-4">Product Name</th>
+          <th class="py-3 px-4">Category</th>
+          <th class="py-3 px-4 text-right">Cost</th>
+          <th class="py-3 px-4 text-right">Price</th>
+          <th class="py-3 px-4 text-center">Stock</th>
+          <th class="py-3 px-4 text-center">Status</th>
+          <th class="py-3 px-4 text-right">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="products-table-body" class="divide-y divide-slate-100">
+        <tr>
+          <td colspan="8" class="py-8 text-center text-slate-400">Loading products from Google Sheets...</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  function loadProducts() {
+    if (typeof google === 'undefined' || !google.script) return;
+    google.script.run
+      .withSuccessHandler(function(products) {
+        AppState.products = products;
+        renderProductsTable(products);
+      })
+      .apiGetProducts();
+  }
+
+  function renderProductsTable(products) {
+    var tbody = document.getElementById('products-table-body');
+    if (!tbody) return;
+    if (!products || products.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" class="py-8 text-center text-slate-400">No products found. Click "Add Product" to create one.</td></tr>';
+      return;
+    }
+    
+    tbody.innerHTML = products.map(function(p) {
+      var isLow = p.currentStock <= p.minimumStock;
+      var isOut = p.currentStock === 0;
+      var stockBadge = isOut ? '<span class="text-rose-600 font-bold">0 OUT</span>' : isLow ? '<span class="text-amber-600 font-semibold">' + p.currentStock + ' (Low)</span>' : '<span class="text-slate-800">' + p.currentStock + '</span>';
+      
+      return '<tr class="hover:bg-slate-50/80 transition-colors">' +
+        '<td class="py-3 px-4 font-mono font-medium text-slate-700">' + p.sku + '</td>' +
+        '<td class="py-3 px-4 font-medium text-slate-900">' + p.name + '</td>' +
+        '<td class="py-3 px-4 text-slate-600">' + (p.categoryName || 'General') + '</td>' +
+        '<td class="py-3 px-4 text-right tabular-nums text-slate-600">$' + Number(p.costPrice).toFixed(2) + '</td>' +
+        '<td class="py-3 px-4 text-right tabular-nums font-medium text-slate-900">$' + Number(p.sellingPrice).toFixed(2) + '</td>' +
+        '<td class="py-3 px-4 text-center tabular-nums">' + stockBadge + ' ' + (p.unit || 'pcs') + '</td>' +
+        '<td class="py-3 px-4 text-center"><span class="badge bg-emerald-50 text-emerald-700">' + (p.status || 'Active') + '</span></td>' +
+        '<td class="py-3 px-4 text-right space-x-1">' +
+          '<button onclick="editProduct(\'' + p.id + '\')" class="p-1 text-slate-400 hover:text-blue-600"><i class="fa-solid fa-pen-to-square"></i></button>' +
+          '<button onclick="deleteProductConfirm(\'' + p.id + '\')" class="p-1 text-slate-400 hover:text-rose-600"><i class="fa-solid fa-trash"></i></button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+  }
+</script>

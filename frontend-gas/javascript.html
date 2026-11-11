@@ -1,0 +1,70 @@
+<script>
+  /**
+   * Client-side State Manager for Google Apps Script HTML Service
+   */
+  var AppState = {
+    products: [],
+    categories: [],
+    suppliers: [],
+    transactions: [],
+    currentView: 'dashboard'
+  };
+
+  function navigate(viewName) {
+    AppState.currentView = viewName;
+    
+    // Hide all views
+    var views = ['dashboard', 'products', 'categories', 'suppliers', 'stock-in', 'stock-out', 'reports'];
+    views.forEach(function(v) {
+      var el = document.getElementById('view-' + v);
+      if (el) el.classList.add('hidden');
+    });
+
+    // Show target view
+    var target = document.getElementById('view-' + viewName);
+    if (target) target.classList.remove('hidden');
+
+    var titleEl = document.getElementById('view-title');
+    if (titleEl) {
+      titleEl.innerText = viewName.charAt(0).toUpperCase() + viewName.slice(1).replace('-', ' ');
+    }
+
+    // Refresh view-specific data
+    if (viewName === 'dashboard') loadDashboard();
+    if (viewName === 'products') loadProducts();
+    if (viewName === 'categories') loadCategories();
+    if (viewName === 'suppliers') loadSuppliers();
+    if (viewName === 'stock-in' || viewName === 'stock-out') populateProductDropdowns();
+    if (viewName === 'reports') loadReports();
+  }
+
+  function refreshData() {
+    showToast('Syncing with Google Sheets...', 'info');
+    google.script.run
+      .withSuccessHandler(function(metrics) {
+        showToast('Google Sheets synchronized successfully!', 'success');
+        navigate(AppState.currentView);
+      })
+      .withFailureHandler(function(err) {
+        showToast('Sync error: ' + err.message, 'error');
+      })
+      .apiGetDashboardMetrics();
+  }
+
+  function showToast(message, type) {
+    var toast = document.getElementById('global-toast');
+    if (!toast) return;
+    toast.innerText = message;
+    toast.className = 'fixed bottom-5 right-5 px-4 py-2.5 rounded-lg text-xs font-medium shadow-lg transition-all z-50 ' + 
+      (type === 'success' ? 'bg-emerald-600 text-white' : type === 'error' ? 'bg-rose-600 text-white' : 'bg-slate-800 text-white');
+    toast.classList.remove('hidden');
+    setTimeout(function() {
+      toast.classList.add('hidden');
+    }, 3500);
+  }
+
+  // Initial load
+  window.addEventListener('DOMContentLoaded', function() {
+    navigate('dashboard');
+  });
+</script>

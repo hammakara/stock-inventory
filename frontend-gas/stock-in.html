@@ -1,0 +1,95 @@
+<div class="max-w-2xl mx-auto bg-white rounded-xl border border-slate-200 p-6 space-y-5">
+  <div>
+    <h3 class="font-semibold text-slate-900 text-base">Record Stock In (Inbound Shipment)</h3>
+    <p class="text-xs text-slate-500 mt-1">Receive goods into warehouse inventory and increment on-hand stock.</p>
+  </div>
+
+  <form id="stock-in-form" onsubmit="handleStockInSubmit(event)" class="space-y-4">
+    <div>
+      <label class="block text-xs font-medium text-slate-700 mb-1">Select Product *</label>
+      <select id="stockin-product-select" required onchange="handleProductSelectForIn(this.value)" class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:border-blue-500">
+        <option value="">-- Choose Product to Receive --</option>
+      </select>
+      <div id="stockin-product-info" class="text-[11px] text-slate-500 mt-1.5 hidden">
+        Current Stock: <span id="stockin-current-stock" class="font-semibold text-slate-800"></span> · Unit Cost: <span id="stockin-unit-cost" class="font-semibold text-slate-800"></span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-medium text-slate-700 mb-1">Inbound Quantity *</label>
+        <input type="number" id="stockin-quantity" min="1" required class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:border-blue-500" placeholder="e.g. 50">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-700 mb-1">Unit Cost ($)</label>
+        <input type="number" id="stockin-cost" step="0.01" min="0" class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:border-blue-500" placeholder="Optional cost override">
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-xs font-medium text-slate-700 mb-1">Reference Number *</label>
+        <input type="text" id="stockin-ref" required class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:border-blue-500" placeholder="e.g. PO-2026-0045">
+      </div>
+      <div>
+        <label class="block text-xs font-medium text-slate-700 mb-1">Supplier</label>
+        <select id="stockin-supplier" class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:border-blue-500">
+          <option value="">Direct / Standard Vendor</option>
+        </select>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-xs font-medium text-slate-700 mb-1">Receiving Notes</label>
+      <textarea id="stockin-notes" rows="2" class="w-full text-xs p-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:outline-hidden focus:border-blue-500" placeholder="Inspection remarks, bay number, carrier..."></textarea>
+    </div>
+
+    <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+      <button type="reset" class="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg">Reset</button>
+      <button type="submit" id="stockin-submit-btn" class="px-5 py-2 text-xs font-medium text-white bg-emerald-600 hover:bg-emerald-700 rounded-lg flex items-center gap-1.5">
+        <i class="fa-solid fa-check"></i> Save Inbound Transaction
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  function handleStockInSubmit(e) {
+    e.preventDefault();
+    var productId = document.getElementById('stockin-product-select').value;
+    var quantity = Number(document.getElementById('stockin-quantity').value);
+    var unitPrice = Number(document.getElementById('stockin-cost').value);
+    var ref = document.getElementById('stockin-ref').value;
+    var notes = document.getElementById('stockin-notes').value;
+
+    if (!productId || quantity <= 0) {
+      showToast('Please select a product and enter a valid quantity.', 'error');
+      return;
+    }
+
+    var btn = document.getElementById('stockin-submit-btn');
+    btn.disabled = true;
+    btn.innerText = 'Processing...';
+
+    google.script.run
+      .withSuccessHandler(function(res) {
+        showToast('Stock In recorded successfully! New balance: ' + res.newStock, 'success');
+        document.getElementById('stock-in-form').reset();
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Save Inbound Transaction';
+        navigate('products');
+      })
+      .withFailureHandler(function(err) {
+        showToast('Error: ' + err.message, 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Save Inbound Transaction';
+      })
+      .apiStockIn({
+        productId: productId,
+        quantity: quantity,
+        unitPrice: unitPrice,
+        referenceNumber: ref,
+        notes: notes
+      });
+  }
+</script>

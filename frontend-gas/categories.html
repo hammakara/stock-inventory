@@ -1,0 +1,48 @@
+<div class="space-y-6">
+  <div class="flex items-center justify-between">
+    <div>
+      <h3 class="font-semibold text-slate-900 text-sm">Product Categories</h3>
+      <p class="text-xs text-slate-500 mt-0.5">Organize your inventory taxonomy into departments</p>
+    </div>
+    <button onclick="openCategoryModal()" class="px-3 py-1.5 text-xs font-medium text-white bg-blue-600 hover:bg-blue-700 rounded-lg flex items-center gap-1.5">
+      <i class="fa-solid fa-plus"></i> Add Category
+    </button>
+  </div>
+
+  <div id="categories-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <div class="p-6 bg-white rounded-xl border border-slate-200 text-center text-slate-400 text-xs col-span-full">
+      Loading categories from Google Sheets...
+    </div>
+  </div>
+</div>
+
+<script>
+  function loadCategories() {
+    if (typeof google === 'undefined' || !google.script) return;
+    google.script.run
+      .withSuccessHandler(function(categories) {
+        AppState.categories = categories;
+        var grid = document.getElementById('categories-grid');
+        if (!categories || categories.length === 0) {
+          grid.innerHTML = '<div class="p-6 bg-white rounded-xl border border-slate-200 text-center text-slate-400 text-xs col-span-full">No categories configured yet.</div>';
+          return;
+        }
+        grid.innerHTML = categories.map(function(c) {
+          return '<div class="bg-white p-4 rounded-xl border border-slate-200 flex flex-col justify-between">' +
+            '<div>' +
+              '<div class="flex items-center justify-between">' +
+                '<h4 class="font-semibold text-slate-900 text-sm">' + c.name + '</h4>' +
+                '<span class="text-[11px] font-mono text-slate-500">' + (c.productCount || 0) + ' items</span>' +
+              '</div>' +
+              '<p class="text-xs text-slate-500 mt-2 line-clamp-2">' + (c.description || 'No description provided.') + '</p>' +
+            '</div>' +
+            '<div class="pt-3 mt-3 border-t border-slate-100 flex justify-end gap-2 text-xs">' +
+              '<button onclick="editCategory(\'' + c.id + '\')" class="text-blue-600 hover:underline">Edit</button>' +
+              '<button onclick="deleteCategoryConfirm(\'' + c.id + '\')" class="text-rose-600 hover:underline">Delete</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      })
+      .apiGetCategories();
+  }
+</script>
